@@ -1,0 +1,304 @@
+syntax = "proto3";
+
+package scmj;
+
+service Scmj {
+  rpc Operate(OperateRsp) returns (ScmjEmpty){}
+  rpc Exchange(ExchangeRsp) returns (ScmjEmpty){}
+  rpc Lack(LackRsp) returns (ScmjEmpty){}
+  rpc Bill(BillReq) returns (ScmjEmpty){}
+  rpc Complete(CompleteReq) returns (ScmjEmpty){}
+  rpc Auto(AutoReq) returns (ScmjEmpty){}
+  rpc Change(ChangeRsp) returns (ScmjEmpty){}
+  rpc ChangeCardStart(ChangeCardStartReq) returns (ScmjEmpty){}
+  rpc TingTip(TingTipReq) returns (ScmjEmpty){}
+}
+
+message ScmjEmpty {}
+
+// 时钟消息
+message ClientTimerNoti {
+  int32 chair_id = 1;
+  int32 second = 2;
+  int32 remain_card_num = 3;
+}
+// 当前出牌标记
+message MjPlayMarkNoti {
+  // -1 无标记
+  int32 chair_id = 1;
+}
+// 用户数据 
+message UserItem {
+  int64 uid = 1;
+  // 昵称
+  string nickname = 2;
+  // 计算分的货币数量
+  int64 score = 3;
+}
+// 入桌通知item
+message EnterNotiItem {
+  int32 chair_id = 1;
+  // 1:已准备 2:未准备
+  int32 ready = 2;
+  // 用户数据
+  UserItem data = 3;
+}
+message EnterAck {
+  int32 ret = 1;
+  repeated EnterNotiItem items = 2;
+}
+// 入桌通知
+message EnterNoti {
+  EnterNotiItem item = 1;
+}
+
+// 游戏开始通知
+message BeginGameNoti {
+
+}
+// 桌费通知
+message TaxNoti {
+  int64 tax = 1;
+}
+// 投骰子，置庄通知
+message SetBankerNoti {
+  int32 chair_id = 1;
+  repeated int32 dices = 2;
+  int32 set_east = 3;
+}
+// 刷新牌面通知
+message UpdateCardsNoti {
+  int32 chair_id = 1;
+  // 手牌
+  repeated int32 handcards = 2;
+  // 左手牌
+  repeated int32 leftcards = 3;
+  // 打出去的牌
+  repeated int32 dispcards = 4;
+  // 胡的牌
+  repeated int32 hucards = 5;
+  // 当前摸到的牌
+  int32 card = 6;
+}
+// 服务器发送给客户端的换3张请求
+message ExchangeReq {
+  repeated int32 cards = 1;
+}
+// 客户端发送给服务端的换3张响应
+message ExchangeRsp {
+  repeated int32 cards = 1;
+}
+// 换3张确认通知
+message ExchangeConfirmNoti {
+  int32 chair_id = 1;
+  // 1:已确认 2:未确认
+  int32 status = 2;
+}
+// 换3张完成通知
+message ExchangeCompleteNoti {
+  // 0:对家互换 1:顺时针互换 2:逆时针互换
+  int32 way = 1;
+}
+// 服务器发送给客户端的定缺请求
+message LackReq {
+  // 0:万 2:筒 1:条 推荐提示
+  int32 lack = 1;
+}
+// 客户端发送给服务端的定缺响应
+message LackRsp {
+  // 0:万 2:筒 1:条
+  int32 lack = 1;
+}
+// 定缺通知
+message LackNoti {
+  int32 chair_id = 1;
+  // 0:万 2:筒 1:条
+  int32 lack = 2;
+}
+// 服务器发送给客户端的操作请求
+message OperateReq {
+  repeated int32 opcodes = 1;
+  // 对应的操作牌
+  int32 card = 2;
+  // 操作序列号
+  int32	serial_id	=	3;
+  // 听牌
+  repeated TingCards ting_cards = 4;
+}
+// 客户端发送给服务端的操作响应
+message OperateRsp {
+  int32 opcode = 1;
+  // 对应的操作牌
+  int32 card = 2;
+  // 操作相关的牌 比如吃哪几张
+  repeated int32 op_cards = 3;
+  // 操作序列号
+  int32	serial_id	=	4;
+}
+// 服务器发送给客户端的操作通知
+message OperateNoti {
+  int32 chair_id = 1;
+  int32 opcode = 2;
+  // 对应的操作牌
+  int32 card = 3;
+}
+// 托管请求
+message AutoReq {
+  // 1:托管 2:取消托管
+  int32 auto = 1;
+} 
+// 托管通知
+message AutoNoti {
+  int32 chair_id = 1;
+  // 1:托管 2:取消托管
+  int32 auto = 2;
+}
+// 分数变化条目
+message ScoreChangeItem {
+  int32 chair_id = 1;
+  // 当前变化，用于做动画
+  int64 present_score = 2;
+  // 总的变化，用于显示总的分数
+  int64 total_score = 3;
+}
+// 分数变化通知
+message ScoreChangeNoti {
+  // 当前通知的道具变化
+  repeated ScoreChangeItem items = 1;
+}
+// 对局流水请求
+message BillReq {
+  
+}
+// 对局流水清单条目
+message BillItem {
+  // 操作类型 点炮、自摸、被点炮、被自摸、刮风、下雨、被刮风、被下雨等
+  int32 op = 1;
+  // 番型 清一色、七对等
+  int32 fan = 2;
+  // 倍数
+  int32 ratio = 3;
+  // 分数
+  int64 score = 4;
+  // 操作对象方位 上家、下家、对家、三家
+  string position = 5;
+  // 类型 查花猪、查大叫、查听退税、呼叫转移
+  int32 type = 6;
+  // 牌型
+  repeated int32 cards = 7;
+}
+// 对局流水响应
+message BillRsp {
+  int64 score = 1;
+  repeated BillItem items = 2;
+}
+// 等级
+message LevelExp {
+  // 更新前等级
+  int32 prev_level = 1;
+  // 更新后等级
+  int32 cur_level = 2;
+  // 本次增加经验
+  int32 inc_exp = 3;
+  // 更新前等级所需经验值
+  int32 prev_level_exp = 4;
+  // 更新前等级所差经验值
+  int32 prev_left_exp = 5;
+  // 当前等级所需经验
+  int32 level_exp = 6;
+  // 当前等级所差的经验
+  int32 left_exp = 7;
+  // 升级获得的奖励
+  int32 money = 8;
+}
+// 结算通知
+message ResultNoti {
+  int64 score = 1;
+  repeated BillItem items = 2;
+  LevelExp level = 3;
+}
+// 客户端发送给服务器的游戏完整数据请求
+message CompleteReq {
+  
+}
+// 游戏数据item
+message GameDataItem {
+  // 座位号
+  int32 chair_id = 1;
+  // 定缺
+  int32 lack = 2;
+  // 认输
+  bool giveup = 3;
+  // 托管
+  bool auto = 4;
+  // 分数变化
+  int64 add_score = 5;
+  // 麻将牌信息
+  UpdateCardsNoti cards = 6;
+}
+// 服务器发送给客户端的游戏完整数据通知
+message CompleteNoti {
+  // 游戏状态 0:游戏未开始 1:游戏已结束 2:游戏进行中
+  int32 state = 1;
+  // 东家位置
+  int32 east = 2;
+  // 庄家位置
+  int32 banker = 3;
+  // 剩余牌
+  int32 remain_card_num = 4;
+  // 基础数据
+  repeated EnterNotiItem base_items = 5;
+  // 游戏数据
+  repeated GameDataItem game_items = 6;
+}
+
+// 服务器发送给客户端的换牌请求
+message ChangeReq {
+
+}
+// 客户端发送给服务端的换牌响应
+message ChangeRsp {
+  // 1:换牌 2:放弃换牌
+  int32 giveup = 1;
+  // 要换掉的牌
+  repeated int32 cards = 2;
+}
+// 客户端发送给服务端的换牌通知
+message ChangeNoti {
+  // 换回来的牌
+  repeated int32 cards = 1;
+}
+
+message ChangeCardStartReq {
+  string oid = 1;
+}
+
+message TingCard {
+  int32 card = 1;
+  int32 left = 2;
+  int32 ratio = 3;
+  int32 fan = 4;
+}
+
+message TingCards {
+  int32 play_card = 1;
+  repeated TingCard ting_cards = 2;
+}
+
+message TingTipReq {
+
+}
+
+message TingTipRsp {
+  repeated TingCard ting_cards = 1;
+}
+
+message TingNoti {
+  // 1:听牌 2:不听牌
+  int32 is_ting = 1;
+}
+
+// TODO: 对局免输
+
+// TODO: 海底捞月
+

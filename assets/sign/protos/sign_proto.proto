@@ -1,0 +1,84 @@
+syntax="proto3";
+
+package sign;
+
+service Sign {
+  //获取签到列表和相应进度
+  rpc GetSignProgress(GetSignProgressReq) returns (GetSignProgressRsp) {}
+  // 更新广告状态
+  rpc UptSignAdState(UptSignAdStateReq) returns (UptSignAdStateRsp) {}
+  //获取任务奖励
+  rpc GetSignAward(GetSignAwardReq) returns (GetSignAwardRsp) {}
+}
+
+message GetSignProgressReq {
+  int64 uid = 1;          //用户id
+}
+
+message AwardItem {
+  int32 id = 1;      //道具id
+  int64 num = 2;      //道具最少数量
+  string icon = 3;  // icon地址
+}
+
+message DailyItem {
+  int32 day = 1;          //游戏id
+  int32 award_status = 2; // 领取状态
+  repeated AwardItem awards = 3; //奖励内容
+}
+
+message AccumulateItem {
+  int32 count = 1;          //游戏id
+  int32 award_status = 2; // 领取状态
+  repeated AwardItem awards = 3; //奖励内容
+}
+
+message UserItem {
+  int64 uid = 1; // 玩家uid
+  string daily = 2; // 每日签到记录
+  int64 daily_time = 3;          // 每日签到日期
+  string accumulate = 4;         // 累计签到记录
+  int64 accumulate_time = 5; // 累计签到日期
+}
+
+message GetSignProgressRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  int64 daily_time = 3;          // 每日签到日期
+  int64 accumulate_time = 4; // 累计签到日期
+  repeated DailyItem daily_items = 5; // 每日配置
+  repeated AccumulateItem accumulate_items = 6; // 累计配置
+}
+
+message UptSignAdStateReq {
+  int64 uid = 1;
+  int32 state = 2;
+  int32 typ = 3;
+  int32 sign_day = 4;
+}
+
+message UptSignAdStateRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+message GetSignAwardReq {
+  int64 uid = 1;          //用户id
+  int32 sign_type = 2; // 1:每日签到 2:累计签到
+  int32 sign_day = 3; // 签到日 每日：1~7 累计：3、5、7
+  int32 award_type = 4; // 1:普通签到 2：视频签到 3:视频补签
+}
+
+message GetSignAwardRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  repeated AwardItem awards = 3; //奖励内容
+}
+
+message SignAwardNot {
+  bool have_rewards = 1; // 有奖
+  int32 style = 2; // 样式 1:矩形 2：矩形带角标
+  string desc = 3; // 描述
+  int32 align = 4; // 对齐 0：默认居中 1：左对齐 2：右对齐
+  bool flip = 5; // 左右翻转
+}

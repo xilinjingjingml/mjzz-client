@@ -1,0 +1,131 @@
+syntax = "proto3";
+package room;
+option go_package = "proto;room";
+
+service Room {
+  // 准备开始游戏(配桌)
+  rpc StartGame(StartJoinRoomReq) returns (StartJoinRoomRsp) {}
+  // 取消开始游戏
+  rpc LeaveGame(CancelJoinRoomReq) returns (CancelJoinRoomRsp) {}
+  //  获取房间信息
+  rpc GetRoomInfo(GetRoomInfoReq) returns (GetRoomInfoRsp) {}
+  //  获取当前进行中的房间
+  rpc GetCurRoomInfo(GetCurRoomInfoReq) returns (GetCurRoomInfoRsp) {}
+  // 获取房间列表
+  rpc GetRoomList(RoomListReq) returns(RoomListRsp) {}
+  // 进入房间确认
+  rpc EnterRoomConfirm(EnterRoomConfirmReq) returns (EnterRoomConfirmRsp) {}
+}
+
+
+message GameData {
+  string room_id = 1;
+  string rule_id = 2;
+  string server_id = 3;
+  string game_id = 4;
+}
+message RoomInfo {
+  string room_id = 1;
+  string server_id = 2;
+  string game_id = 3;
+  string rule_id = 4;
+  string meta_data = 10;
+}
+
+// ----------------------------
+// 进入游戏匹配请求
+message StartJoinRoomReq {
+  int64 uid = 1;
+  string game_id = 2;
+  string rule_id = 3;
+  map<string, string> params = 4;
+}
+
+message StartJoinRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  GameData game_data = 3;
+}
+
+// 通知入桌消息
+message StartJoinRoomNot {
+  string game_id = 1;
+  string rule_id = 2;
+}
+
+message EnterRoomConfirmReq {
+  bool confirmed = 1; // ture 进入房间,其他false
+}
+
+message EnterRoomConfirmRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  RoomInfo room = 3;
+}
+
+// ----------------------------
+// 取消游戏匹配请求
+message CancelJoinRoomReq {
+  int64 uid = 1;
+}
+
+message CancelJoinRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+// ----------------------------
+// 获取房间信息
+message GetRoomInfoReq {
+  string room_id = 1;
+}
+
+message GetRoomInfoRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  RoomInfo room = 3;
+}
+
+// 查询玩家当前进行中的房间
+message GetCurRoomInfoReq {
+  int64 uid = 1;
+}
+
+message GetCurRoomInfoRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  RoomInfo room = 3;
+}
+
+message RoomListReq {
+
+}
+
+message RoomListRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  repeated RoomInfo room_list = 3;
+}
+
+//----------------------------------
+message CacheRoom {
+  string room_id = 1;
+  string rule_id = 2;
+  string game_id = 3;
+  string server_id = 4;
+  int32 max_player_num = 5;
+  int64 create_time = 6;
+  map<int64, int64> players = 10;
+  map<int64, int64> loading_players = 11;
+}
+
+message CachePlayer {
+  int64 uid = 1;
+  string room_id = 2;
+  string server_id = 3;
+  string match_rule_id = 4;
+  int64 matching_time = 5;
+  string front_id = 6;
+  string guid = 7;
+  string loading_room_id = 8;
+}

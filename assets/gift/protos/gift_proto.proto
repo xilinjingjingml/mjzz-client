@@ -1,0 +1,65 @@
+syntax="proto3";
+
+option go_package = "gift;gift";
+package gift;
+
+service Gift {
+  //获取配置信息
+  rpc GetGiftProgress(GetGiftProgressReq) returns (GetGiftProgressRsp) {}
+  //领取奖励
+  rpc GetGiftAward(GetGiftAwardReq) returns (GetGiftAwardRsp) {}
+  //清空缓存
+//  rpc ClearCache(ClearCacheReq) returns (ClearCacheRsp) {}
+}
+
+message GetGiftProgressReq {
+  int64 uid = 1; // 用户id
+}
+
+message Award {
+  int32 prop_id = 1;   //道具id
+  int64 num = 2; //最多道具数量
+  string icon = 3; // icon
+}
+
+message AwardConfig {
+  int32 index = 1; //配置索引
+  string id = 2;     //进度id
+  int32 cur_num = 3;      //活动当前进度数量
+  int32 cond_num = 4;     //完成活动进度所需数量
+  repeated Award awards = 5; //奖励
+  int32 status = 6; //活动状态 1:未完成 2:可领取 3:已领取
+}
+
+message GetGiftProgressRsp {
+  int32 code = 1; //返回码
+  string msg = 2; //消息
+  repeated AwardConfig configs = 3;
+}
+
+message GetGiftAwardReq {
+  int64 uid = 1; // 用户id
+  string id = 2; // 奖励id
+}
+
+message GetGiftAwardRsp {
+  int32 code = 1; //返回码
+  string msg = 2; //消息
+  repeated Award awards = 3; //奖励
+}
+
+message GiftAwardNot {
+  bool have_rewards = 1; // 有奖
+  int32 style = 2; // 样式 1:矩形 2：矩形带角标
+  string desc = 3; // 描述
+  int32 align = 4; // 对齐 0：默认居中 1：左对齐 2：右对齐
+}
+
+//message ClearCacheReq {
+//  int64 uid = 1; // 用户id
+//}
+//
+//message ClearCacheRsp {
+//  int32 code = 1; //返回码
+//  string msg = 2; //消息
+//}

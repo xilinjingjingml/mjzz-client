@@ -1,0 +1,51 @@
+syntax="proto3";
+
+package item;
+
+// 破产补助
+service Relief {
+  // 获取次数
+  rpc GetReliefInfo(GetReliefInfoReq) returns (GetReliefInfoRsp) {}
+  // 更新广告状态
+  rpc UptReliefAdState(UptReliefAdStateReq) returns (UptReliefAdStateRsp) {}
+  // 获取奖励
+  rpc GetReliefAwards(GetReliefAwardsReq) returns (GetReliefAwardsRsp) {}
+}
+
+message Award {
+  int32 index = 1;
+  int32 num = 2;
+}
+
+message GetReliefInfoReq {
+  int64 uid = 1;
+}
+
+message GetReliefInfoRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  int32 count = 3;
+  int32 money = 4;
+}
+
+message UptReliefAdStateReq {
+  int64 uid = 1;
+  int32 state = 2;
+}
+
+message UptReliefAdStateRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+message GetReliefAwardsReq {
+  int64 uid = 1;
+  // 1 普通领取 2 5倍广告领取
+  int32 type = 2;
+}
+
+message GetReliefAwardsRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  repeated Award awards = 3;
+}

@@ -1,0 +1,62 @@
+syntax="proto3";
+
+option go_package = "lottery;lottery";
+package lottery;
+
+service Lottery {
+  // 获取转盘配置
+  rpc GetLotteryCfg(LotteryCfgReq) returns (LotteryCfgRsp) {}
+  // 更新广告状态
+  rpc UptLotteryAdState(UptLotteryAdStateReq) returns (UptLotteryAdStateRsp) {}
+  // 获取转盘奖励
+  rpc GetLotteryAward(GetLotteryAwardReq) returns (GetLotteryAwardRsp) {}
+}
+
+message Item {
+  int32 id = 1;   //道具id
+  int64 num = 2; //道具数量
+}
+
+message Award {
+  int32	item_id		= 1;		/* 奖励类型 */
+  int64	item_min	= 2;		/* 最低奖励数量 */
+  int64	item_max	= 3;		/* 最高奖励数量,如果和最低奖励一样表示是固定奖励 */
+  int32 item_index = 4; // 道具icon索引
+}
+
+// 获取转盘活动
+message LotteryCfgReq {
+	int64 uid	= 1;    // 用户id
+}
+
+message LotteryCfgRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  bool bAble = 3; // 能领取
+  repeated Award awards = 4; // 奖励配置
+}
+
+// 进行抽奖
+message GetLotteryAwardReq {
+    int64 uid = 1;    // 用户ID
+}
+
+message GetLotteryAwardRsp {
+	  int32 err_code = 1;
+    string err_msg = 2;
+    int32 award_idx = 3;
+    repeated Item awards = 4;
+}
+
+message UptLotteryAdStateReq {
+  int64 uid = 1;
+  int32 state = 2;
+}
+
+message UptLotteryAdStateRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+message LotteryAwardNot {
+}

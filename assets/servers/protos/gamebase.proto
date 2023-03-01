@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+option go_package = "proto;gamebase";
+package gamebase;
+
+service Base {
+  // 进入房间
+  rpc EnterRoom(EnterRoomReq) returns (BaseEmpty){}
+  // 退出房间
+  rpc ExitRoom(ExitRoomReq) returns (BaseEmpty){}
+  //  心跳包
+  rpc HeartBeat(HeartBeatReq) returns (BaseEmpty) {}
+  // 游戏中换桌
+  rpc ChangeRoom(ChangeRoomReq) returns (BaseEmpty) {}
+}
+
+service Game {
+  // 创建房间
+  rpc CreateRoom(CreateRoomReq) returns (CreateRoomRsp) {}
+  // 解散房间
+  rpc DismissRoom(DismissRoomReq) returns (DismissRoomRsp) {}
+  // 房间信息
+  rpc GetRoomInfo(GetRoomInfoReq) returns (GetRoomInfoRsp) {}
+  // 踢下玩家
+  rpc KickPlayer(KickPlayerReq) returns (KickPlayerRsp){}
+  // 更新房间内的玩家
+  rpc UpdateRoomPlayer(UpdateRoomPlayerReq) returns (UpdateRoomPlayerRsp) {}
+}
+
+message UpdateRoomPlayerReq {
+  message PlyData {
+    string bind_id = 1;
+  }
+  string room_id = 1;
+  map<int64, PlyData> add_list = 2;
+  repeated int64 delete_list = 3;
+}
+
+message UpdateRoomPlayerRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+message BaseEmpty {}
+
+message RoomInfo {
+  string room_id = 1;
+  string server_id = 2;
+  string game_id = 3;
+  string rule_id = 4;
+  int32  max_player_num = 5;
+  int64  create_time = 6;
+  string meta_data = 10;
+}
+
+message HeartBeatReq {
+  // 请求时间戳，单位s
+  int64 req_time = 1;
+}
+
+message HeartBeatRsp {
+  int64 req_time = 1;
+  int64 ack_time = 2;
+}
+
+
+// ----------------------------
+// 进入房间
+message CreateRoomReq {
+  string rule = 1;
+  string meta_data = 2;
+}
+
+message CreateRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  RoomInfo room_info = 3;
+}
+
+// ----------------------------
+// 进入房间
+message EnterRoomReq {
+  int64 uid = 1;
+  string token = 2;
+  string room_id = 3;
+}
+
+message EnterRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+  RoomInfo room_info = 3;
+}
+
+message EnterRoomNot {
+  string room_id = 1;
+  int64 uid = 2;
+  string nickname = 3;
+  int64 money = 4;
+}
+
+
+// ----------------------------
+// 进入房间
+message ExitRoomReq {
+
+}
+
+message ExitRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+message ExitRoomNot {
+  string room_id = 1;
+  int64 uid = 2;
+}
+
+// ----------------------------
+// 换房间
+message ChangeRoomReq {
+
+}
+
+message ChangeRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+
+// ----------------------------
+// 踢玩家
+message KickPlayerReq {
+  int64 uid = 1;
+}
+
+message KickPlayerRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+message KickPlayerNot {
+  int32 reason = 1; // 原因
+  string msg = 2;
+}
+
+
+// ----------------------------
+// 解散房间
+message DismissRoomReq {
+  string room_id = 1;
+}
+
+message DismissRoomRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+// ----------------------------
+// 设置房间内的玩家
+message SetRoomPlayerReq {
+  string room_id = 1;
+  repeated int64 players = 2;
+}
+
+message SetRoomPlayerRsp {
+  int32 err_code = 1;
+  string err_msg = 2;
+}
+
+
+//-----------------------------
+// 获取房间信息
+message GetRoomInfoReq {
+  string room_id = 1;
+}
+
+message GetRoomInfoRsp {
+  RoomInfo room_info = 1;
+}
+
+
+// ----------------------------
+// 游戏结算通知
+message EventGameResultNot {
+  string game_id = 1; // 游戏标志，例如: ddz
+  string rule = 2; // 游戏规则，例如: ddz.bxp.cj 不洗牌初级场
+  int64 uid = 3; // 玩家ID
+  string room_id = 4; // 房间号，游戏唯一标志
+  int32 round = 5; // 当前局数
+  int64 checkout_time = 6; // 结算时间戳
+  string reason = 7; // 操作原因, 例如: game_result
+
+  map<int32, int64> item_changes = 14; // 结算数据
+  map<string, string> params = 15; // 结算参数
+}
+
+// 玩家进入房间
+message EventPlayerEnterRoom {
+  string game_id = 1; // 游戏标志，例如: ddz
+  string rule_id = 2; // 游戏规则，例如: ddz.bxp.cj 不洗牌初级场
+  int64 uid = 3; // 玩家ID
+  string room_id = 4; // 房间号，游戏唯一标志
+  string server_id = 5;
+}
+
+// 玩家离开房间
+message EventPlayerExitRoom {
+  string game_id = 1; // 游戏标志，例如: ddz
+  string rule_id = 2; // 游戏规则，例如: ddz.bxp.cj 不洗牌初级场
+  int64 uid = 3; // 玩家ID
+  string room_id = 4; // 房间号，游戏唯一标志
+}
+
+// 创建房间通知
+message EventCreateRoomNot {
+  string room_id = 1;
+  string server_id = 2;
+  string rule_id = 3;
+  string game_id = 4;
+  int32 max_player_num = 5;
+  int64 create_time = 6;
+}
+
+// 解散房间通知
+message EventDismissRoomNot {
+  string server_id = 1;
+  string room_id = 2;
+  string rule_id = 3;
+}
+//
+//// 房间状态更新
+//message EventRoomUpdateNot {
+//  string room_id = 1;
+//  string server_id = 2;
+//  string rule_id = 3;
+//  string game_id = 4;
+//  int32 max_player_num = 5;
+//  int64 create_time = 6;
+//  map<int64, int64> players = 10;
+//}
+//
+//
+
+// 房间内消息
+message RoomMsgNot {
+  int32 code = 1;
+  string reason = 2;
+}
